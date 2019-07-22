@@ -58,6 +58,19 @@ function setGame() {
     bindStartButton();
 }
 
+function generateCardPool(level) {
+    const cardPool = [];
+    const totalCards = Math.pow(level * 2);
+    for (let i = 0; i < totalCards / 2; i++) {
+        const tech = CARD_TECHS[i % CARD_TECHS.length];
+        cardPool.push(tech);
+        cardPool.push(tech);
+    }
+    cardPool.sort(() => Math.random() - 0.5);
+
+    return cardPool;
+}
+
 function startGame() {
     // Initialization
     game.score = 0;
@@ -108,14 +121,15 @@ function createCard(level) {
 var clickHandler = function(event) {
     var target = event.target;
     var currentCard = target.parentNode;
-    var cardNumber = (game.level * 2) * (game.level * 2);
+    var cardNumber = (game.level * 2) * (game.level * 2); // Could put it in the game object e.g game.totalCards
+
     if (!currentCard.classList.contains('card')) {
         return;
     }
     if (currentCard.classList.contains('card--flipped')) {
         return;
-    }
-    if (game.lastCard != null && game.lastCard != currentCard) {
+    } // these two can be combined
+    if (game.lastCard != null && game.lastCard != currentCard) { // Could extract the if statement to a variable, e.g isNotTheSameCard
         currentCard.classList.add('card--flipped');
         game.currentCard = currentCard;
         var currentType = currentCard.getAttribute('data-tech');
@@ -131,7 +145,7 @@ var clickHandler = function(event) {
         currentCard.classList.add('card--flipped');
         game.lastCard = currentCard;
     }
-    var flippedCard = document.getElementsByClassName('card--flipped').length;
+    var flippedCard = document.getElementsByClassName('card--flipped').length; // Could store the number of flipped card in a variable (the application state)
     // test all card flipped
     if (cardNumber === flippedCard) {
         setTimeout(nextLevel, 2000);
@@ -149,10 +163,10 @@ function nextLevel() {
     game.level += 1;
     var level = game.level;
     if (level > 3) {
-        handleGameOver();
-        return;
+        return handleGameOver();
     } else {
         // reset time bar
+        // Could extract this to a function like resetGame
         game.timer = 60;
         game.barWidth = 100;
         document.querySelector('.game-timer__bar').innerHTML = "60s";
@@ -176,7 +190,7 @@ function handleGameOver() {
 }
 
 function shuffle(array) {
-    array.sort(() => Math.random() - 0.5);
+    array.sort(() => Math.random() - 0.5); // Better not to mutate the argument
 }
 
 /*******************************************
@@ -206,7 +220,7 @@ function updateTimerDisplay() {
         var timeBar = document.getElementsByClassName('game-timer__bar');
         timeDisplay.innerHTML = "" + time + "s";
         // update time bar
-        game.barWidth -= (5 / 3);
+        game.barWidth -= (5 / 3); // What's this magic number 5/3? I'm guessing 100 / 60? Could just be game.timer / 60
         var barStyle = "width:" + game.barWidth.toFixed(4) + "%;"
         timeBar[0].setAttribute("style", barStyle);
     } else {
@@ -226,6 +240,7 @@ function bindStartButton() {
     var statusButton = document.querySelector('.game-stats__button');
     statusButton.addEventListener('click', function(event) {
         var status = statusButton.innerHTML;
+        // Could put the status in the game object, e.g. game.isPlaying
         if (status === 'New Game') {
             statusButton.innerHTML = 'End Game';
             startGame();
